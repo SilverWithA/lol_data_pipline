@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timedelta
 
 
-api_key = "RGAPI-82d303c3-356f-4cbe-83b6-6ac2ca16567c"
+api_key = ""
 result_data_lock = threading.Lock()
 start_time = time.time()
 
