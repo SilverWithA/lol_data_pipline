@@ -25,12 +25,6 @@ def _gameinfo_task(ti):
     gameinfo = collect_gameinfo(ti.xcom_pull(key="matchIDsChallenger"))
     ti.xcom_push(key="gameinfoChallenger", value=gameinfo)
 
-def _upload_to_S3(ti):
-    json_file = make_jsonfile(ti.xcom_pull(key="gameinfoChallenger"))
-
-    hook = S3Hook('aws_default')
-    hook.load_file(filename=json_file, key=key, bucket_name=bucket_name)
-
 
 
 @provide_session
@@ -70,12 +64,20 @@ with DAG("collect_challenger_Gameinfo", start_date=datetime(2024, 1, 1),
         python_callable=_gameinfo_task
     )
 
-    save = PythonOperator(
-        task_id="save",
-        python_callable=_save_task
+
+    def _upload_to_S3(ti):
+        json_file = make_jsonfile(ti.xcom_pull(key="gameinfoChallenger"))
+
+        hook = S3Hook('aws_default')
+        hook.load_file_obj(file_obj=json_file, key='challenger_240108', bucket_name='lol-raw-fameinfo', replace=False, encrypt=False)
+
+
+    upload_task = PythonOperator(
+        task_id='upload',
+        python_callable=_upload_to_S3
     )
 
 
 
-    clean_xcom >> summoner_task >> puuid_task >> matchID_task >> gameinfo_task >> save
+    clean_xcom >> summoner_task >> puuid_task >> matchID_task >> gameinfo_task >> upload_task
 
