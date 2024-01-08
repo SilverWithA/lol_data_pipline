@@ -8,3 +8,4 @@ class SummonerName():
         """request summoner API and collect summoner Names in specific tier"""
 
 
+print(Tier.CHALLENGER.first)
