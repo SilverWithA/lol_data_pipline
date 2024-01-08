@@ -33,6 +33,13 @@ def cleanup_xcom(session=None, **context):
     dag_id = dag._dag_id
     session.query(XCom).filter(XCom.dag_id == dag_id).delete()
 
+def _upload_to_S3(ti):
+    hook = S3Hook('aws_default')
+    # 업로드할 파일 객체 생성
+    json_file_obj = make_file_obj(ti.xcom_pull(key="gameinfoChallenger"))
+    hook.load_file_obj(file_obj=json_file_obj, key='challenger_0108', bucket_name='lol-raw-gameinfo.ap-northeast-2', replace=False, encrypt=False)
+
+
 with DAG("collect_challenger_Gameinfo", start_date=datetime(2024, 1, 1),
     schedule_interval='@daily', catchup=False) as dag:
 
@@ -64,16 +71,8 @@ with DAG("collect_challenger_Gameinfo", start_date=datetime(2024, 1, 1),
         python_callable=_gameinfo_task
     )
 
-
-    def _upload_to_S3(ti):
-        json_file = make_jsonfile(ti.xcom_pull(key="gameinfoChallenger"))
-
-        hook = S3Hook('aws_default')
-        hook.load_file_obj(file_obj=json_file, key='challenger_240108', bucket_name='lol-raw-fameinfo', replace=False, encrypt=False)
-
-
     upload_task = PythonOperator(
-        task_id='upload',
+        task_id='upload_task',
         python_callable=_upload_to_S3
     )
 

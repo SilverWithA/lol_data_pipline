@@ -4,6 +4,7 @@ import time
 import json
 
 from datetime import datetime, timedelta
+from io import StringIO, BytesIO
 
 api_key = "RGAPI-82d303c3-356f-4cbe-83b6-6ac2ca16567c"
 result_data_lock = threading.Lock()
@@ -121,7 +122,9 @@ def collect_gameinfo(matchIDs):
     print("수집한 raw_gameinfo 개수: ", len(raw_gameinfo))
     return raw_gameinfo
 
-def make_jsonfile(raw_gameinfo):
-    return json.dumps(raw_gameinfo, indent=4)
+def make_file_obj(raw_gameinfo):
+    json_bytes  = json.dumps(raw_gameinfo, ensure_ascii=False).encode('utf-8')
+    json_bytes_io = BytesIO(json_bytes)
+    return json_bytes_io
 
 
