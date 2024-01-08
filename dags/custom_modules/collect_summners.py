@@ -4,7 +4,7 @@ import requests
 api_key = "RGAPI-82d303c3-356f-4cbe-83b6-6ac2ca16567c"
 
 
-# summonerNames = []
+
 def collect_challenger_summoner():
     summonerNames = []
     # # 1. 티어별 닉네임 조회 - challenger  -----------------------
