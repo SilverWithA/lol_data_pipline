@@ -79,7 +79,7 @@ current_time = datetime.utcnow()
 two_weeks_ago = current_time - timedelta(weeks=2)
 temp_gameinfo = []
 
-def fetch_matchID(matchID):
+def fetch_gameinfo(matchID):
     """collect lately gameinfo"""
     try:
         match_url = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchID + "?api_key=" + api_key
@@ -112,7 +112,7 @@ def collect_gameinfo(matchIDs):
             # print("수집한 정보 개수: ",len(raw_gameinfo))
             time.sleep(10)
 
-        thread = threading.Thread(target=fetch_matchID, args=(matchIDs[i],))
+        thread = threading.Thread(target=fetch_gameinfo, args=(matchIDs[i],))
         gameinfo_threads.append(thread)
         thread.start()
 

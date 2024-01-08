@@ -37,7 +37,7 @@ def _upload_to_S3(ti):
     hook = S3Hook('aws_default')
     # 업로드할 파일 객체 생성
     json_file_obj = make_file_obj(ti.xcom_pull(key="gameinfoChallenger"))
-    hook.load_file_obj(file_obj=json_file_obj, key='challenger_0108', bucket_name='lol-raw-gameinfo.ap-northeast-2', replace=False, encrypt=False)
+    hook.load_file_obj(file_obj=json_file_obj, key='challenger', bucket_name='lol-raw-gameinfo', replace=False, encrypt=False)
 
 
 with DAG("collect_challenger_Gameinfo", start_date=datetime(2024, 1, 1),
