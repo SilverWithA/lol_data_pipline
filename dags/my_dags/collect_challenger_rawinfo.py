@@ -2,11 +2,11 @@ from airflow import DAG
 from airflow.utils.db import provide_session
 from airflow.models import XCom
 from airflow.operators.python import PythonOperator, BranchPythonOperator
-from airflow.operators.bash import BashOperator
+from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 from datetime import datetime
 from custom_modules.collect_summners import collect_challenger_summoner
-from custom_modules.collecting_modules import collect_puuids, collect_matchIDs, collect_gameinfo
+from custom_modules.collecting_modules import *
 
 
 def _summoner_task(ti):
@@ -25,16 +25,22 @@ def _gameinfo_task(ti):
     gameinfo = collect_gameinfo(ti.xcom_pull(key="matchIDsChallenger"))
     ti.xcom_push(key="gameinfoChallenger", value=gameinfo)
 
+def _upload_to_S3(ti):
+    json_file = make_jsonfile(ti.xcom_pull(key="gameinfoChallenger"))
+
+    hook = S3Hook('aws_default')
+    hook.load_file(filename=json_file, key=key, bucket_name=bucket_name)
+
+
+
+@provide_session
+def cleanup_xcom(session=None, **context):
+    dag = context["dag"]
+    dag_id = dag._dag_id
+    session.query(XCom).filter(XCom.dag_id == dag_id).delete()
+
 with DAG("collect_challenger_Gameinfo", start_date=datetime(2024, 1, 1),
     schedule_interval='@daily', catchup=False) as dag:
-
-
-    @provide_session
-    def cleanup_xcom(session=None, **context):
-        dag = context["dag"]
-        dag_id = dag._dag_id
-        # It will delete all xcom of the dag_id
-        session.query(XCom).filter(XCom.dag_id == dag_id).delete()
 
 
     clean_xcom = PythonOperator(
@@ -64,7 +70,12 @@ with DAG("collect_challenger_Gameinfo", start_date=datetime(2024, 1, 1),
         python_callable=_gameinfo_task
     )
 
+    save = PythonOperator(
+        task_id="save",
+        python_callable=_save_task
+    )
 
 
-    clean_xcom >> summoner_task >> puuid_task >> matchID_task >> gameinfo_task
+
+    clean_xcom >> summoner_task >> puuid_task >> matchID_task >> gameinfo_task >> save
 

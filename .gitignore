@@ -8,6 +8,10 @@
 ### git에서 인식하지 않을 파일 목록 정의 ###
 logs/
 plugins/
+dags/my_dags/xcom_dag.py
+dags/my_dags/module_import_test.py
+dags/custom_modules/module_test1.py
+dags/custom_modules/re_collectByThread.py
 *.pyc
 *.airflowignore
 

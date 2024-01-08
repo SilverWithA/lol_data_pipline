@@ -1,6 +1,7 @@
 import threading
 import requests
 import time
+import json
 
 from datetime import datetime, timedelta
 
@@ -55,7 +56,6 @@ def fetch_matchId(puuid):
         for matchID in each_usr_matchIDs:
             temp_matchIDs.append(matchID)
         return
-
 def collect_matchIDs(puuids):
     matchID_threads = []
     for i in range(len(puuids)):
@@ -120,5 +120,8 @@ def collect_gameinfo(matchIDs):
     raw_gameinfo = temp_gameinfo
     print("수집한 raw_gameinfo 개수: ", len(raw_gameinfo))
     return raw_gameinfo
+
+def make_jsonfile(raw_gameinfo):
+    return json.dumps(raw_gameinfo, indent=4)
 
 

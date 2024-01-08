@@ -16,6 +16,7 @@ def collect_summonerNames():
     # # 1. 티어별 닉네임 조회 - challenger  -----------------------
     summoner_url = "https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=" + api_key
     summoner_r = requests.get(summoner_url)
+
     callen_count = len(summoner_r.json()["entries"])
 
     for i in range(callen_count):
@@ -148,8 +149,8 @@ def save_rawGameinfo_file():
 
 
 # 함수실행 -----------------------------------------
-# collect_summonerNames()
-# print("게임 정보를 수집할 닉네임의 개수: ", len(summonerNames))
+# s = collect_summonerNames()
+# print("게임 정보를 수집할 닉네임의 개수: ", len(s))
 #
 # collect_puuids()
 # print("수집한 puuid의 개수: ", len(puuids))
