@@ -6,14 +6,9 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 ### git에서 인식하지 않을 파일 목록 정의 ###
-../logs/
+logs/
 plugins/
 dags/my_dags/xcom_dag.py
-
-dags/custom_modules/total_data_collect_flow.py
-dags/custom_modules/collect_summners.py
-dags/custom_modules/collecting_modules.py
-
 dags/custom_modules/constant/APIkey.py
 *.pyc
 *.airflowignore

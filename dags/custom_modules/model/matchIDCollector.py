@@ -4,18 +4,30 @@ import requests
 
 class SummonerName():
     def requeset_summonerNames(tier):
-        summonerNames = []
-
         """request summoner API and collect summoner Names in specific tier"""
-        summoner_url = tier.summoner_url + str(APIkey.PRODUCION_KEY.str_key)
-        summoner_r = requests.get(summoner_url)
+        summonerNames = []
+        if tier not in [Tier.CHALLENGER, Tier.GRANDMASTER, Tier.MASTER]:
+            for division in ["I","II","III","IV"]:
+                summoner_url = tier.summoner_url + division + "?page=1&api_key=" + str(APIkey.PRODUCTION_KEY.str_key)
+                summoner_r = requests.get(summoner_url)
 
-        summonerName_count = len(summoner_r.json()["entries"])
+                summonerName_count = len(summoner_r.json())
 
-        for i in range(summonerName_count):
-            summonerNames.append(summoner_r.json()["entries"][i]["summonerName"])
+                for i in range(summonerName_count):
+                    summonerNames.append(summoner_r.json()[i]['summonerName'])
 
-        return summonerNames
+            return summonerNames
+        else:
+            summoner_url = tier.summoner_url + str(APIkey.PRODUCTION_KEY.str_key)
+            summoner_r = requests.get(summoner_url)
+
+            summonerName_count = len(summoner_r.json()["entries"])
+
+            for i in range(summonerName_count):
+                summonerNames.append(summoner_r.json()["entries"][i]["summonerName"])
+
+            return summonerNames
+
 
 
 
@@ -23,8 +35,13 @@ class SummonerName():
 # print(SummonerName.requeset_summonerNames(Tier.CHALLENGER)[:10])  # 챌린저
 # print(SummonerName.requeset_summonerNames(Tier.GRANDMASTER)[:10])  # 그마
 # print(SummonerName.requeset_summonerNames(Tier.MASTER)[:10])  # 마스터
+# print(len(SummonerName.requeset_summonerNames(Tier.DIAMOND))) # 다이아 이하
+
 
 # ------------- 한 페이지에 대략 200명
-u = "https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/DIAMOND/I?page=1&api_key=RGAPI-82d303c3-356f-4cbe-83b6-6ac2ca16567c"
-r = requests.get(u)
-print(len(r.json()))
+# u = "https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/DIAMOND/I?page=1&api_key=RGAPI-82d303c3-356f-4cbe-83b6-6ac2ca16567c"
+# r = requests.get(u)
+# for i in range(10):
+#     print(r.json()[i]['summonerName'])
+
+# print(len(SummonerName.requeset_summonerNames(Tier.DIAMOND)))
