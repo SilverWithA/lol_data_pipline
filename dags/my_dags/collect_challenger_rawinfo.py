@@ -40,7 +40,7 @@ def _upload_to_S3(ti):
     hook.load_file_obj(file_obj=json_file_obj, key='challenger', bucket_name='lol-raw-gameinfo', replace=False, encrypt=False)
 
 
-with DAG("collect_challenger_Gameinfo", start_date=datetime(2024, 1, 1),
+with DAG("collect_challenger_gameinfo", start_date=datetime(2024, 1, 1),
     schedule_interval='@daily', catchup=False) as dag:
 
 

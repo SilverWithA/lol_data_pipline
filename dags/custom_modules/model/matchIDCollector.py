@@ -1,47 +1,47 @@
-from custom_modules.constant.tiers import *
-from custom_modules.constant.APIkey import *
+import threading
 import requests
+import time
+from custom_modules.constant.APIkey import *
 
-class SummonerName():
-    def requeset_summonerNames(tier):
-        """request summoner API and collect summoner Names in specific tier"""
-        summonerNames = []
-        errors = []
+class MatchID():
+    def __init__(self):
+        # 인스턴스 변수로 선언
+        self.matchIDs = []
+        self.matchID_lock = threading.Lock()
+
+    def _request_matchID(self, puuid):
+        """request API to collecting matchID(game code) corresponse user's puuid"""
         try:
-            if tier in [Tier.CHALLENGER, Tier.GRANDMASTER, Tier.MASTER]:
-                summoner_url = tier.summoner_url + str(APIkey.PRODUCTION_KEY.str_key)
-                summoner_r = requests.get(summoner_url)
+            matchID_url = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/" + str(puuid) + "/ids?start=0&count=20&api_key=" + APIkey.PRODUCTION_KEY.str_key
+            each_usr_matchIDs = requests.get(matchID_url).json()
 
-                summonerName_count = len(summoner_r.json()["entries"])
-
-                for i in range(summonerName_count):
-                    summonerNames.append(summoner_r.json()["entries"][i]["summonerName"])
-
-                return summonerNames
-            # under master ranking = diamond ~ bronze
-            else:
-                for division in Tier.DIVISIONS.summoner_url:
-                    print(division)
-                    summoner_url = tier.summoner_url + division + "?page=1&api_key=" + str(APIkey.PRODUCTION_KEY.str_key)
-                    summoner_r = requests.get(summoner_url)
-
-                    summonerName_count = len(summoner_r.json())
-
-                    for i in range(summonerName_count):
-                        summonerNames.append(summoner_r.json()[i]['summonerName'])
-
-                ############################
-                print(len(summonerNames))
-                return summonerNames
-
+            with self.matchID_lock:
+                for matchID in each_usr_matchIDs:
+                    self.matchIDs.append(matchID)
+            return
         except Exception as e:
-            errors.append(e)
+            return
 
+    def collect_matchIDs(self, puuids):
+        """collect specific tier's puuids using by multi-thread"""
+        puuid_threads = []
+        for i in range(len(puuids)):
+            if i % 50 == 0 and i > 0:
+                time.sleep(10)
 
+            thread = threading.Thread(target=self._request_matchID, args=(puuids[i],))
+            puuid_threads.append(thread)
+            thread.start()
 
+        for thread in puuid_threads:
+            thread.join()
 
-# 사용 예시 및 테스트 코드
-# print(SummonerName.requeset_summonerNames(Tier.CHALLENGER)[:10])  # 챌린저
-# print(SummonerName.requeset_summonerNames(Tier.GRANDMASTER)[:10])  # 그마
-# print(SummonerName.requeset_summonerNames(Tier.MASTER)[:10])  # 마스터
-# print(len(SummonerName.requeset_summonerNames(Tier.DIAMOND))) # 다이아 이하
+        # 중복 경기 코드 제거
+        self.matchIDs = list(set(self.matchIDs))
+        print("수집한 matchID 개수: ", len(self.matchIDs))
+        return self.matchIDs
+
+# 테스트를 위해 puuid 리스트를 임의로 생성
+# p = ['oM0iKcQ3-4Zl18QMkWh7mcJbhR6MKs8Vx4xDZC4tZ-R0QsZjNXxtUUInmz1rY12MZScOrKKb79zJrg', 'iWnomvEF_MmA75CnmNZQERNMzJtxvQplqsGdcoAvaFVNCasVAtxd82eeIG7EuxsZ2ftVQ9LGP85GsQ', 'Sz8X8aI5rxudPXlK4o22B4H1WT1HNOBtrCZagRWs85XKqU4Bs4UTuvWeEKDpNYdq5uIWv2fuECzBHA']
+# machid_instace = MatchID()
+# print(machid_instace.collect_matchIDs(p))

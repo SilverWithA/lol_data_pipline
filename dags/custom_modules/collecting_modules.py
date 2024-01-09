@@ -99,14 +99,12 @@ def fetch_gameinfo(matchID):
             total_json = {"mat_info": mat_info,
                         "mat_timeline": mat_timeline}
             temp_gameinfo.append(total_json)
-
-
     except:
         return
+
 def collect_gameinfo(matchIDs):
     gameinfo_threads = []
-    # 100개만 테스트
-    for i in range(100):
+    for i in range(len(matchIDs)):
         if i % 50 == 0 and i > 0:
             # print("i: ", i)
             # print("수집한 정보 개수: ",len(raw_gameinfo))
